@@ -10,18 +10,14 @@ namespace py = boost::python;
 using namespace std;
 
 void py_run(){
-    py::object mn;
-    {
-        // Acquire the thread lock
-        PythonThreadLock p;
-        // Do the init
-        py::object mm = py::import("__main__");
-        mn = mm.attr("__dict__");
-    }
+    // Acquire the thread lock
+    PythonThreadLock p;
+    // Do the init
+    py::object mm = py::import("__main__");
+    py::object mn = mm.attr("__dict__");
     // Release the thread lock, and acquire it on each iteration instead
     for(int i = 0; i < 5; i++){
-        PythonThreadLock p;
-        py::exec("print 'Hey there! I'm a thread!'", mn);
+        py::exec("print 'Hey I am a thread!'", mn);
         sleep(1);
     }
 }
@@ -59,6 +55,7 @@ int main(){
     pthread_attr_t pthread_custom_attr;
     threads = new pthread_t[4 * sizeof(pthread_t)];
     pthread_attr_init(&pthread_custom_attr);
+
     // Spawn 4 threads
     for(int i = 0; i < 4; i++){
         pthread_create(&threads[i], &pthread_custom_attr, do_python, NULL);
